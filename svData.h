@@ -2,7 +2,7 @@
 //  svData.h
 //  SphericalVoronoi
 //
-//  Created by Home on 2014-04-18.
+//  Created by Xiang Wei on 2014-04-18.
 //  Copyright (c) 2014 whenitsdone.org. All rights reserved.
 //
 
@@ -26,11 +26,11 @@ namespace sv
     class beach_arc;
     class site_event;
     class circle_event;
-    
+
     typedef std::shared_ptr<vertex> vertex_ptr;
     typedef std::shared_ptr<half_edge> half_edge_ptr;
     typedef std::shared_ptr<cell> cell_ptr;
-    
+
     class cell
     {
     public:
@@ -40,18 +40,18 @@ namespace sv
         uint32_t index;
         Point point;
         std::vector<half_edge_ptr> halfEdges;
-        
+
         void reset()
         {
             halfEdges.clear();
         }
-        
+
         friend std::ostream& operator<< (std::ostream& stream, const cell& c)
         {
             return stream << "<" << c.index << "> " << "(" << c.point << ")";
         }
     };
-    
+
     class vertex
     {
     public:
@@ -70,13 +70,13 @@ namespace sv
         Point point;
         std::vector<half_edge_ptr> halfEdges;
         std::set<cell_ptr> cells;
-        
+
         void reset()
         {
             halfEdges.clear();
             cells.clear();
         }
-        
+
         friend std::ostream& operator<< (std::ostream& stream, const vertex& v)
         {
             stream << "point(" << v.point << ")";
@@ -89,7 +89,7 @@ namespace sv
             return stream;
         }
     };
-    
+
     class half_edge
     {
     public:
@@ -105,7 +105,7 @@ namespace sv
         half_edge_ptr prev;
         half_edge_ptr next;
         half_edge_ptr twin;
-        
+
         void reset()
         {
             cell.reset();
@@ -115,14 +115,14 @@ namespace sv
             next.reset();
             twin.reset();
         }
-        
+
         friend std::ostream& operator<< (std::ostream& stream, const half_edge& e)
         {
             stream << "s: " << *e.start << "e: " << *e.end;
             return stream;
         }
     };
-    
+
     class beach_arc
     {
     public:
@@ -130,18 +130,18 @@ namespace sv
         : cell(cell_)
         {
         }
-        
+
         std::shared_ptr<cell> cell;
-        
+
         std::shared_ptr<circle_event> circleEvent;      // the related circle event
-        
+
         std::shared_ptr<vertex> startVertex;
-        
+
         bool operator< (const beach_arc& ba) const
         {
             return cell->point.phi < ba.cell->point.phi;
         }
-        
+
         friend std::ostream& operator<< (std::ostream& stream, const beach_arc& arc)
         {
             stream << "cell " << *arc.cell;
@@ -156,10 +156,10 @@ namespace sv
             return stream;
         }
     };
-    
+
     typedef std::shared_ptr<beach_arc> beach_arc_ptr;
     typedef std::vector<beach_arc_ptr> beach_type;
-    
+
     class site_event
     {
     public:
@@ -169,22 +169,22 @@ namespace sv
             theta = cell->point.theta;
             phi = cell->point.phi;
         }
-        
+
         std::shared_ptr<cell> cell;
         Real theta;
         Real phi;
-        
+
         bool operator< (const site_event& right) const
         {
             return (theta < right.theta) || (theta == right.theta && phi < right.phi);
         }
-        
+
         friend std::ostream& operator<< (std::ostream& stream, const site_event& e)
         {
             return stream << *e.cell;
         }
     };
-    
+
     class circle_event
     {
     public:
@@ -192,7 +192,7 @@ namespace sv
         : arc_i(arc_i_), arc_j(arc_j_), arc_k(arc_k_)
         {
             using namespace glm;
-            
+
             auto pij = cell_i()->point.position - cell_j()->point.position;
             auto pkj = cell_k()->point.position - cell_j()->point.position;
             auto direction = cross(pij, pkj);
@@ -204,30 +204,30 @@ namespace sv
         beach_arc_ptr arc_i;
         beach_arc_ptr arc_j;
         beach_arc_ptr arc_k;
-        
+
         cell_ptr cell_i() const { return arc_i->cell; }
         cell_ptr cell_j() const { return arc_j->cell; }
         cell_ptr cell_k() const { return arc_k->cell; }
-        
+
         Point circle_center;
         Real circle_radius;
-        
+
         Real theta;        // the lowest point on circle
-        
+
         bool operator< (const circle_event& ce) const
         {
             return theta < ce.theta;
         }
-        
+
         friend std::ostream& operator<< (std::ostream& stream, const circle_event& e)
         {
             stream << "[" << e.cell_i()->index << "," << e.cell_j()->index << "," << e.cell_k()->index << "] " << "theta " << e.theta;
             return stream;
         }
     };
-    
+
     typedef std::shared_ptr<circle_event> circle_event_ptr;
-    
+
     struct compare_circle_event_priority
     {
         bool operator()(const std::shared_ptr<circle_event>& left, const std::shared_ptr<circle_event>& right) const
@@ -235,7 +235,7 @@ namespace sv
             return *left < *right;
         }
     };
-    
+
 }
 
 #endif
